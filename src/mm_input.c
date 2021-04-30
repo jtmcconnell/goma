@@ -10699,6 +10699,10 @@ look_for_modal_prop(FILE *imp,	/* ptr to input stream (in)*/
 	*MaterialModel= DumModel;
 	iread = 1;
       }
+    else if(!strcmp(model_name, "CARREAU"))
+    {
+       iread = CARREAU;
+    }
     else 
       {
 	iread = -2;
