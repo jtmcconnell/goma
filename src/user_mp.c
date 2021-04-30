@@ -1061,7 +1061,7 @@ usr_momentum_source(dbl *param)	/* ptr to user-defined parameter list        */
 
  /* Comment out our remove this line if using this routine */
 
-    EH(-1,"No user_momentum_source model implemented");  
+//     EH(-1,"No user_momentum_source model implemented");  
  /**********************************************************/
 
 
@@ -1084,6 +1084,51 @@ usr_momentum_source(dbl *param)	/* ptr to user-defined parameter list        */
   /*  for(i=0; i<pd->Num_Species_Eqn; i++) C[i] = fv->c[i]; */  /*Do not touch */
 
  /**********************************************************/
+//  printf("\npre factor = %E", param[0]);
+//  printf("\nexponent   = %E", param[1]);
+//  printf("\ny-gravity  = %E", param[2]);
+
+ double c = param[0]; 
+ double g = param[1]; 
+//  double gravity_x = param[2]; 
+//  double gravity_y = param[3];
+
+ const double velMagSqr = SQUARE(fv->v[0]) + SQUARE(fv->v[1]);
+ const double eps = 1e-6;
+ const double velMagPlusEps = sqrt(velMagSqr + eps);
+ 
+// momentum source term is approximately a power function of velocity magnitude
+
+ double f_div_v = -c*pow(velMagPlusEps + eps, g - 1.);
+ f[0] = fv->v[0]*f_div_v;
+ f[1] = fv->v[1]*f_div_v + param[2];
+
+ dfdV[0][0] = -c*pow(velMagPlusEps, g - 3.)*( g*SQUARE(fv->v[0]) + SQUARE(fv->v[1]) + eps);
+ dfdV[0][1] = -c*(g-1)*fv->v[0]*fv->v[1]*pow(velMagPlusEps, g - 3.);
+ dfdV[1][0] = dfdV[0][1];
+ dfdV[1][1] = -c*pow(velMagPlusEps, g - 3.)*( g*SQUARE(fv->v[1]) + SQUARE(fv->v[0]) + eps);
+
+// ------------------------------------------------------------------------------
+
+// momentum source term is approximately a linear function of velocity magnitude
+//
+//  const double velEps2  = SQUARE(velMagPlusEps);
+//  const double velEps3 = velEps2*velMagPlusEps;
+
+//  f[0] = -c*fv->v[0]/velMagPlusEps - g*fv->v[0];
+//  f[1] = -c*fv->v[1]/velMagPlusEps - g*fv->v[1] + param[2];
+
+//  dfdV[0][0] = -g - c*( velEps2 - SQUARE(fv->v[0]) )/velEps3;
+//  dfdV[0][1] = c*fv->v[0]*fv->v[1]/velEps3;
+//  dfdV[1][0] = dfdV[0][1];
+//  dfdV[1][1] = -g - c*( velEps2 - SQUARE(fv->v[1]) )/velEps3;
+
+//   printf("\nx-force = %E", f[0]);
+//   printf("\ny-force = %E", f[1]);
+//   printf("\ndfx/du = %E",  dfdV[0][0]);
+//   printf("\ndfx/dv = %E",  dfdV[0][1]);
+//   printf("\ndfy/dx = %E",  dfdV[1][0]);
+//   printf("\ndfy/dy = %E",  dfdV[1][1]);
 
  /*******Add property function and sensitivities here*******/
 
